@@ -5,16 +5,16 @@
 - Familiarity in C/C++
 - Familiarity in Python, PyTorch, Numpy, PyOpenCL  
 
-We assume you alread know the prerequisites listed above. If not, we high recommend you to go through these first:  
+We assume you alread know the prerequisites listed above. If not, we highly recommend you to go through these first:  
 - [*CS231n*](http://cs231n.stanford.edu/): An excellent Stanford open course for deep learning.
 - [*Hands On OpenCL*](https://handsonopencl.github.io/): An open source two-day lecture course for teaching and learning OpenCL. It will help you go through important OpenCL concepts, OpenCL kernel programming and C/C++/Python OpenCL APIs.
 - [*PyTorch*](https://pytorch.org/tutorials/): PyTorch offical tutorials.
 
 ## 1. Introduction  
 ### 1.1 Convolutional neural network(CNN)  
-CNN is one of the most popular algorithms in deep learning during recent years. It represents the state-of-art ability in several computer vision tasks, like objective detection, image classification, and image segmentation. CNN has already achieved human level on image classification and even better at some specific tasks.  
+CNN is one of the most popular algorithms in deep learning during recent years. It represents the state-of-art ability in several computer vision tasks, like objective detection, image classification and image segmentation. CNN has already achieved human level on image classification and even better at some specific tasks.  
 
-<img src="https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/CV.jpg" width="600px"/>  
+<img src="https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/CV.jpg" width="600px"/>  
 
 *Pic from the syllabus of CS231n*
 ### 1.2  Why using FPGA?  
@@ -24,18 +24,18 @@ Due to its parallel architecture, FPGA is also good at parallel computing, which
 
 There are many research about using large-scale FPGA like Intel Arria 10 to completely replace GPU in PC or workstation and accelerate both back-forward pass and forward pass process of CNN.  
 
-Since more and more CNN applications appear on embedded systems like face recognition on smart phones and object detection on drones or robots. We decide to focus on accelerating only the forward pass of CNN on embedded systems whose resources and power consumption are limited. The FPGA we have is a Cyclone V on DE10-Nano board sponsored by Terasic and Intel which we believe can be a perfect solution — using its ARM processor as traditional controller and FPGA as a low power & low latency accelerator.  
+Since more and more CNN applications appear on embedded systems like face recognition on smart phones and object detection on drones or robots, we decide to focus on accelerating only the forward pass of CNN on embedded systems whose resources and power consumption are limited. The FPGA we have is a Cyclone V on DE10-Nano board sponsored by Terasic and Intel which we believe can be a perfect solution — using its ARM processor as traditional controller and FPGA as a low power & low latency accelerator.  
 
 ### 1.3 Why using OpenCL?
 The OpenCL standard is the first open, royalty-free, unified programming model for accelerating algorithms on heterogeneous systems. OpenCL allows the use of a C-based programming language other than Verilog HDL or VHDL for rapidly developing applications on FPGA platforms. Another benefit of OpenCL is that it is a portable, open, royalty-free standard, which is a key differentiator versus proprietary programming models. And with Intel FPGA SDK for OpenCL, we can fully leverage the unique capabilities of FPGAs to deliver acceleration performance with power efficiency and low latency.  
 ### 1.4 Design flow  
-![Design Flow](https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/DesignFlow.PNG)
+![Design Flow](https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/DesignFlow.PNG)
 ## 2. Selecting CNN model  
-There are several CNN models commonly used during recent years, like AlexNet, VGG, GoogleNet and ResNet. However, most models are too computationally expensive to deploy on embedding systems. Also, applications on embedding systems often require much low latency, which means deep networks can’t fit on source-limited FPGAs, like the Cyclone V FPGA on DE10-Nano board. So the first task is to find those “efficient” models.
+There are several CNN models commonly used during recent years, like AlexNet, VGG, GoogleNet and ResNet. However, most models are too computationally expensive to deploy on embedded systems. Also, applications on embedded systems often require much low latency, which means deep networks can’t fit on source-limited FPGAs, like the Cyclone V FPGA on DE10-Nano board. So the first task is to find those “efficient” models.
 
 [*Canziani et al.(2016)*](https://arxiv.org/abs/1605.07678) make a very impressive comparison among common CNN models. The computation ability of DE10-nano is around 10 GFLOPs, so it can only afford AlexNet-level models.  
 
-<img src="https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/CNN_FLOPs.jpg" width="450px"/>  
+<img src="https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/CNN_FLOPs.jpg" width="450px"/>  
 
 *Pic from Canziani's paper*  
 
@@ -43,12 +43,12 @@ There are several CNN models commonly used during recent years, like AlexNet, VG
 ## 3. Designing OpenCL kernel  
 The structure of SqueezeNet v1.1 is shown in the figure below. Actually, SqueezeNet v1.1 only has 4 types of layer: 3x3 convolution layer, 1x1 convolution layer, 3x3 max pool layer and 13x13 average pool layer.  
 
-<img src="https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/squeezenetv1.1.PNG" width="500px"/> 
+<img src="https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/squeezenetv1.1.PNG" width="500px"/> 
 
 ### 3.1 3x3 convolution OpenCL kernel  
 Every element in the output feature map of the 3x3 convolutional layer is the dot produced of a Nx3x3 matrix from the corresponding area in the input feature maps and a Nx3x3 convolution filter weight matrix, where N is the total number of the input feature maps. The output size can be calculated as ***output_size = (input_size – 3 + 2 x pad) / stride + 1***. For each convolution filter, there will be an ***output_size x output_size*** feature map.
 
-<img src="https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/conv.jpg" width="500px"/>
+<img src="https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/conv.jpg" width="500px"/>
 
 To acclerate 3x3 convolution, we design each 3x3 convolution OpenCL kernel to calculate one output feature map so that we can compute all feature maps together in parallel. The code implement is a giant loop looping over the corresponding area of input feature maps and caculate dot product. We also add RELU activation at the end of convolution to avoid using another OpenCL kernel to do this job. If this doesn't make sense, just take a look at the code below.  
 ```C
@@ -103,7 +103,7 @@ __kernel void conv2d3x3(
 }
 ```
 ### 3.2 1x1 convolution OpenCL kernel  
-1x1 convolution OpenCL kernel is almost the same as 3x3 convolution OpenCL kernel(Due to code similarity, source code of 1x1 convolution kernel won't be listed here, so will maxpool kernel and 13x13 average pool kernel. Please see [*squeezenet.cl*]() in `/src/hardware` folder). It just replaces the Nx3x3 corresponding area to Nx1x1. Since there is no padding and stride is 1, the size of output feature maps is the same as input feature maps size. 
+1x1 convolution OpenCL kernel is almost the same as 3x3 convolution OpenCL kernel(Due to code similarity, source code of 1x1 convolution kernel won't be listed here, so will max pool kernel and 13x13 average pool kernel. Please see [*squeezenet.cl*](https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/blob/master/src/pyopencl/squeezenet.cl) in `/src/pyopencl` folder). It just replaces the Nx3x3 corresponding area to Nx1x1. Since there is no padding and stride is 1, the size of output feature maps is the same as input feature maps size. 
 ### 3.3 Max pool OpenCL kernel
 The goal of max pool layers is to down sample feature maps to reduce calculation. So for each input feature map, it just picks the largest activation in every 3x3 area and pass it to the output feature map. Each 3x3 max pool OpenCL kernel calculates one output feature map.
 ### 3.4 13x13 average pool OpenCL kernel
@@ -115,7 +115,7 @@ For the sake of simplicity, the PyTorch offical pre-trained SqueezeNet v1.1 mode
 - PyOpenCL implement of host program is much more easier than C/C++ implement.
 - The outputs of CNN can be checked layer by layer by comparing PyOpenCL implement with PyTorch implement so that we can debug host program logic and kernel implement at the same time.
 
-This [*jupyter notebook*]() will help you go through this process.  
+This [*jupyter notebook*](https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/blob/master/src/pyopencl/SqueezeNet.ipynb) will help you go through this process.  
 
 Once it is 100 percent sure that the kernel implement is correct, compile it with Intel FPGA SDK for OpenCL to see whether there are enough resources on FPGA. Use `aoc -c` command first to save time and then use full compile to generate .aocx file. Generating .aocx file could take hours. For example:  
 - check syntactic error, get resource usage estimation and see kernel performance
@@ -125,25 +125,25 @@ Once it is 100 percent sure that the kernel implement is correct, compile it wit
 
 More detailed imformation about `-fp-relaxed` flag can be found [*here*](https://www.altera.com/documentation/mwh1391807516407.html#mwh1391807508278).
 ### 4.2 Designing C/C++ OpenCL host program  
-For the DE10-Nano board to run, we still need to implement host program in C/C++. The C/C++ host program is modified based on Terasic’s OpenCL vector add example in DE10-Nano OpenCL BSP and basically a translation from the PyOpenCL version described in last chapter. The translation process might be a bit tedious but shouldn’t be too hard. Parameters of SqueezeNet v1.1 is simply stored as 1d float arrays in a .h file. Once finished, cross compile it to an executable application with Intel Soc-EDS. The SDK we use is version 17.1.
-## 5. Optimizing kernels
-By now we've got all we need to deploy CNN on FPGA. The first version of implement takes around 4.5 seconds to classify a image which should be much more faster than using ARM processer alone.
+For the DE10-Nano board to run, we still need to implement host program in C/C++. The C/C++ host program is modified based on Terasic’s OpenCL vector add example in DE10-Nano OpenCL BSP and basically a translation from the PyOpenCL version described in last chapter. The translation process might be a bit tedious but shouldn’t be too hard. Parameters of SqueezeNet v1.1 is simply stored as 1d float arrays in a `.h` file. Once finished, cross compile it to an executable application with Intel Soc-EDS. 
+# 5. Optimizing OpenCL kernel
+By now we've got all we need to deploy CNN on FPGA. This first version of implement takes around 4.5 seconds to classify a image which should be much more faster than using ARM processer alone.
 
 Input image:
 
-<img src="https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/dog.jpg" width="400px"/> 
+<img src="https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/dog.jpg" width="400px"/> 
 
 Result:
 ```
 SqueezeNet on FPGA start:
 kernel version 1.0
 
-conv1 takes: 176.503 ms
-block1 takes: 1028.909 ms
-block2 takes: 714.108 ms
-block3 takes: 971.334 ms
-classifier takes: 1537.858 ms
-total: 4428.712 ms
+conv1 takes: 176.381 ms
+block1 takes: 1028.252 ms
+block2 takes: 701.646 ms
+block3 takes: 973.871 ms
+classifier takes: 1542.772 ms
+total: 4422.923 ms
 
 predicted label: n02106662 German shepherd, German shepherd dog, German police dog, alsatian
 
@@ -156,12 +156,12 @@ Resource usage:
 +----------------------------------------+---------------------------+
 ; Resource                               + Usage                     ;
 +----------------------------------------+---------------------------+
-; Logic utilization                      ;   66%                     ;
-; ALUTs                                  ;   42%                     ;
-; Dedicated logic registers              ;   28%                     ;
-; Memory blocks                          ;   60%                     ;
-; DSP blocks                             ;   48%                     ;
-+----------------------------------------+---------------------------; 
+; Logic utilization                      ;   63%                     ;
+; ALUTs                                  ;   40%                     ;
+; Dedicated logic registers              ;   27%                     ;
+; Memory blocks                          ;   59%                     ;
+; DSP blocks                             ;   46%                     ;
++----------------------------------------+---------------------------;
 ```
 ## 5.1 Unrolling loops
 According to Intel:
@@ -187,13 +187,12 @@ Best result we get is ~2.2 seconds per image:
 SqueezeNet on FPGA start:
 kernel version 1.1
 
-
-conv1 takes: 180.447 ms
-block1 takes: 622.513 ms
-block2 takes: 418.559 ms
-block3 takes: 619.502 ms
-classifier takes: 362.807 ms
-total 2204ms
+conv1 takes: 177.326 ms
+block1 takes: 612.210 ms
+block2 takes: 409.226 ms
+block3 takes: 610.608 ms
+classifier takes: 356.479 ms
+total: 2165.849 ms
 
 predicted label: n02106662 German shepherd, German shepherd dog, German police dog, alsatian
 
@@ -206,11 +205,11 @@ And hardware resources is almost used up:
 +----------------------------------------+---------------------------+
 ; Resource                               + Usage                     ;
 +----------------------------------------+---------------------------+
-; Logic utilization                      ;   96%                     ;
-; ALUTs                                  ;   63%                     ;
-; Dedicated logic registers              ;   39%                     ;
-; Memory blocks                          ;   98%                     ;
-; DSP blocks                             ;   67%                     ;
+; Logic utilization                      ;   93%                     ;
+; ALUTs                                  ;   60%                     ;
+; Dedicated logic registers              ;   38%                     ;
+; Memory blocks                          ;   97%                     ;
+; DSP blocks                             ;   60%                     ;
 +----------------------------------------+---------------------------;
 ```
 ## 5.2 Static memory coalescing
@@ -218,7 +217,7 @@ According to Intel:
 >Static memory coalescing is an Intel® FPGA SDK for OpenCL™ Offline Compiler optimization step that attempts to reduce the number of times a kernel accesses non-private memory.The figure below shows a common case where kernel performance might benefit from static memory coalescing:
 ><img src="https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/MemoryCoalescing.PNG" width="500px"/> 
 
-With using memory coalescing in 1x1 conovolution kernel, we get a slightly better performance:
+With using memory coalescing in 1x1 convolution kernel, we get a slightly better performance:
 ```C
 __kernel void conv2d1x1(
     const int input_channel, const int input_size,
@@ -233,14 +232,14 @@ Result:
 SqueezeNet on FPGA start:
 kernel version 1.2
 
-conv1 takes: 131.289 ms
-block1 takes: 505.356 ms
-block2 takes: 387.498 ms
-block3 takes: 511.104 ms
-classifier takes: 495.723 ms
-total: 2030.969 ms
+conv1 takes: 131.246 ms
+block1 takes: 492.144 ms
+block2 takes: 385.413 ms
+block3 takes: 511.847 ms
+classifier takes: 475.307 ms
+total: 1995.957 ms
 
-predicted label: n02106662 German shepherd, German shepherd dog, German police og, alsatian
+predicted label: n02106662 German shepherd, German shepherd dog, German police dog, alsatian
 
 done
 ```
@@ -252,10 +251,10 @@ Resource usage:
 ; Resource                               + Usage                     ;
 +----------------------------------------+---------------------------+
 ; Logic utilization                      ;   97%                     ;
-; ALUTs                                  ;   65%                     ;
+; ALUTs                                  ;   64%                     ;
 ; Dedicated logic registers              ;   39%                     ;
 ; Memory blocks                          ;   96%                     ;
-; DSP blocks                             ;   60%                     ;
+; DSP blocks                             ;   54%                     ;
 +----------------------------------------+---------------------------;
 ```
 More details about static memory coalescing can be found [*here*](https://www.altera.com/documentation/mwh1391807516407.html#mwh1391807503031).
