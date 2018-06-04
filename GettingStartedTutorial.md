@@ -215,7 +215,7 @@ And hardware resources is almost used up:
 ## 5.2 Static memory coalescing
 According to Intel:
 >Static memory coalescing is an Intel® FPGA SDK for OpenCL™ Offline Compiler optimization step that attempts to reduce the number of times a kernel accesses non-private memory.The figure below shows a common case where kernel performance might benefit from static memory coalescing:
-><img src="https://github.com/Er1cZ/Deploying-CNN-on-FPGA-using-OpenCL/raw/master/pic/MemoryCoalescing.PNG" width="500px"/> 
+><img src="https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/MemoryCoalescing.PNG" width="500px"/> 
 
 With using memory coalescing in 1x1 convolution kernel, we get a slightly better performance:
 ```C
