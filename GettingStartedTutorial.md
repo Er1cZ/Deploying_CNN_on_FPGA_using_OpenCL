@@ -258,7 +258,7 @@ Resource usage:
 +----------------------------------------+---------------------------;
 ```
 More details about static memory coalescing can be found [*here*](https://www.altera.com/documentation/mwh1391807516407.html#mwh1391807503031).
-# 5. Conclusion
+# 6. Conclusion
 This is a simple and relatively naive implement aiming to help those who are getting started on this topic. The best result we get is ~2 seconds per image which should be much faster than using the ARM processor alone but not fast enough to put into practial use.
 
 There are some techniques we think might help boost the performance further:
