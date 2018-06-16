@@ -6,7 +6,7 @@ This is a project for 2017 Innovate FPGA design contest. We hope this project ca
 ## System diagram:  
 ![System diagram](https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/sys.PNG)
 ## To use:
-- Copy 2 files in `/bin/v1.2` folder & `/src/common/synset_words.txt` to `/your_path` on the TF card for DE10-Nano with Terasic Offical OpenCL BSP image
+- Copy 2 files in `/bin/v1.3` folder & `/src/common/synset_words.txt` to `/your_path` on the TF card for DE10-Nano with Terasic Offical OpenCL BSP image
 - Set up UART connection between DE10-Nano and PC
 - Login as root
 - Type in commands:
@@ -24,14 +24,14 @@ Input image:
 Result should be like this: 
 ```
 SqueezeNet on FPGA start:
-kernel version 1.2
+kernel version 1.3
 
-conv1 takes: 131.246 ms
-block1 takes: 492.144 ms
-block2 takes: 385.413 ms
-block3 takes: 511.847 ms
-classifier takes: 475.307 ms
-total: 1995.957 ms
+conv1 takes: 68.119 ms
+block1 takes: 117.038 ms
+block2 takes: 157.159 ms
+block3 takes: 250.102 ms
+classifier takes: 399.102 ms
+total: 991.522 ms
 
 predicted label: n02106662 German shepherd, German shepherd dog, German police dog, alsatian
 
@@ -44,11 +44,11 @@ Resource usage:
 +----------------------------------------+---------------------------+
 ; Resource                               + Usage                     ;
 +----------------------------------------+---------------------------+
-; Logic utilization                      ;   97%                     ;
-; ALUTs                                  ;   64%                     ;
-; Dedicated logic registers              ;   39%                     ;
-; Memory blocks                          ;   96%                     ;
-; DSP blocks                             ;   54%                     ;
+; Logic utilization                      ;   102%                    ;
+; ALUTs                                  ;   68%                     ;
+; Dedicated logic registers              ;   40%                     ;
+; Memory blocks                          ;   106%                    ;
+; DSP blocks                             ;   58%                     ;
 +----------------------------------------+---------------------------;  
 ```
 This is a simple and relatively naive implement. We barely found any tutorials and suffered a lot from getting started on this topic. So we decide to make this project more like a getting started tutorial.  
