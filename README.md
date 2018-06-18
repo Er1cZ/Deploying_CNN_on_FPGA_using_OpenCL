@@ -24,14 +24,14 @@ Input image:
 Result should be like this: 
 ```
 SqueezeNet on FPGA start:
-kernel version 1.3
+kernel version 2.0
 
-conv1 takes: 68.119 ms
-block1 takes: 117.038 ms
-block2 takes: 157.159 ms
-block3 takes: 250.102 ms
-classifier takes: 399.102 ms
-total: 991.522 ms
+conv1 takes: 57.173 ms
+block1 takes: 84.526 ms
+block2 takes: 81.311 ms
+block3 takes: 113.345 ms
+classifier takes: 115.184 ms
+total: 451.539 ms
 
 predicted label: n02106662 German shepherd, German shepherd dog, German police dog, alsatian
 
@@ -44,11 +44,11 @@ Resource usage:
 +----------------------------------------+---------------------------+
 ; Resource                               + Usage                     ;
 +----------------------------------------+---------------------------+
-; Logic utilization                      ;   102%                    ;
-; ALUTs                                  ;   68%                     ;
-; Dedicated logic registers              ;   40%                     ;
-; Memory blocks                          ;   106%                    ;
-; DSP blocks                             ;   58%                     ;
+; Logic utilization                      ;   86%                     ;
+; ALUTs                                  ;   57%                     ;
+; Dedicated logic registers              ;   34%                     ;
+; Memory blocks                          ;   68%                     ;
+; DSP blocks                             ;   50%                     ;
 +----------------------------------------+---------------------------;  
 ```
 This is a simple and relatively naive implement. We barely found any tutorials and suffered a lot from getting started on this topic. So we decide to make this project more like a getting started tutorial.  
