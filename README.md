@@ -51,6 +51,7 @@ Resource usage:
 ; DSP blocks                             ;   50%                     ;
 +----------------------------------------+---------------------------;  
 ```
-This is a simple and relatively naive implement. We barely found any tutorials and suffered a lot from getting started on this topic. So we decide to make this project more like a getting started tutorial.  
+We believe Cyclone V FPGA on DE10-Nano board can be a perfect solution to deploy CNN on embedded systems: using its ARM processor as traditional controller and FPGA as a low power & low latency accelerator.
+Our simple 120-line OpenCL implement of FPGA accelerator for CNN vividly demonstrates the accessibility and effectiveness of FPGA in high performance computing. Also, we hope our tutorial can help those who want to set foot on this topic and are having a hard time getting started. 
 
 **For more details, please read** [*A getting started tutorial on FPGA implement of CNN using OpenCL*](https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/blob/master/GettingStartedTutorial.md).
