@@ -5,8 +5,12 @@ This is a project for 2017 Innovate FPGA design contest. We hope this project ca
 - Software: Intel FPGA SDK for OpenCL 17.1  
 ## System diagram:  
 ![System diagram](https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/sys.PNG)
+The whole system is running on DE10-Nano board. Another version with GUI will be updated later.
+
+<img src="https://github.com/Er1cZ/Deploying_CNN_on_FPGA_using_OpenCL/raw/master/pic/gui.gif" width="900px"/> 
+
 ## To use:
-- Copy 2 files in `/bin/v1.3` folder & `/src/common/synset_words.txt` to `/your_path` on the TF card for DE10-Nano with Terasic Offical OpenCL BSP image
+- Copy 2 files in `/bin/v2.0` folder & `/src/common/synset_words.txt` to `/your_path` on the TF card for DE10-Nano with Terasic Offical OpenCL BSP image
 - Set up UART connection between DE10-Nano and PC
 - Login as root
 - Type in commands:
